@@ -1,18 +1,27 @@
 import React from 'react';
 import { Container, Breadcrumb, BreadcrumbItem } from 'reactstrap';
-import { NavMenu } from './NavMenu';
+import NavMenu from './NavMenu';
 import AppRoutes from '../AppRoutes';
+import { useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
-export const Layout = ({ module, children }) => {
+const Layout = ({ module, children }) => {
+    const location = useLocation();
+
+    const { pathname } = location;
+
     return (
         <div>
             <NavMenu />
             <Container>
                 <Breadcrumb>
-                    <BreadcrumbItem key={module}><a href="#">{module}</a></BreadcrumbItem>
+                    <BreadcrumbItem active={pathname === '/'} key={module} tag={Link} to='/'>{module}</BreadcrumbItem>
                     {AppRoutes.map(route => {
-                        const { name } = route;
-                        return name ? <BreadcrumbItem key={name}>{name}</BreadcrumbItem> : null
+                        const { name, path } = route;
+
+                        const active = pathname === path;
+
+                        return active && name ? <BreadcrumbItem active={active} key={name}>{active ? name : <Link to={path || '/'}>{name}</Link>}</BreadcrumbItem> : null
                     })}
                 </Breadcrumb>
                 {children}
@@ -20,3 +29,5 @@ export const Layout = ({ module, children }) => {
         </div>
     );
 };
+
+export default Layout;
