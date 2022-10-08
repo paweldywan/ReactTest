@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using ReactTest.Data;
 using ReactTest.Models;
@@ -16,7 +14,15 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-builder.Services.AddIdentityServer()
+string issuerUri = builder.Configuration.GetSection("IdentityServer").GetValue<string>("IssuerUri");
+
+builder.Services.AddIdentityServer(options =>
+{
+    if (!string.IsNullOrEmpty(issuerUri))
+    {
+        options.IssuerUri = issuerUri;
+    }
+})
     .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
 builder.Services.AddAuthentication()

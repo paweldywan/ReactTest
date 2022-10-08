@@ -9,28 +9,13 @@ export class FetchData extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            forecasts: [], sort: { column: null, order: null }, loading: true
+            forecasts: [], sort: { column: 'date', order: 'desc' }, pagination: { currentPage: 1, pageSize: 10 }, loading: true
         };
         this.populateWeatherData = this.populateWeatherData.bind(this);
     }
 
     componentDidMount() {
         this.populateWeatherData();
-    }
-
-    static sort(forecasts, sort) {
-        const { column, order } = sort;
-
-        if (!column || !order) {
-            return forecasts;
-        }
-
-        if (order === 'asc') {
-            return forecasts.sort((a, b) => (a[column] > b[column] ? 1 : -1));
-        }
-        else {
-            return forecasts.sort((a, b) => (a[column] > b[column] ? -1 : 1));
-        }
     }
 
     static getPostfix(sort, currentColumn) {
@@ -48,6 +33,38 @@ export class FetchData extends Component {
             order = (order === 'asc' && column === currentColumn) ? 'desc' : 'asc';
 
             this.setState({ sort: { column: currentColumn, order: order } });
+
+            this.populateWeatherData();
+        }
+    }
+
+    nextPage() {
+        return () => {
+            let { currentPage, pageSize } = this.state.pagination;
+
+            this.setState({ pagination: { currentPage: currentPage + 1, pageSize: pageSize } });
+
+            this.populateWeatherData();
+        }
+    }
+
+    previousPage() {
+        return () => {
+            let { currentPage, pageSize } = this.state.pagination;
+
+            this.setState({ pagination: { currentPage: currentPage - 1, pageSize: pageSize } });
+
+            this.populateWeatherData();
+        }
+    }
+
+    setPage(page) {
+        return () => {
+            let { _, pageSize } = this.state.pagination;
+
+            this.setState({ pagination: { currentPage: page, pageSize: pageSize } });
+
+            this.populateWeatherData();
         }
     }
 
@@ -55,26 +72,62 @@ export class FetchData extends Component {
         const sort = this.state.sort;
 
         return (
-            <table className='table table-striped' aria-labelledby="tabelLabel">
-                <thead>
-                    <tr>
-                        <th role="button" onClick={this.setSort('date')}>Date {FetchData.getPostfix(sort, 'date')}</th>
-                        <th role="button" onClick={this.setSort('temperatureC')}>Temp. (C) {FetchData.getPostfix(sort, 'temperatureC')}</th>
-                        <th role="button" onClick={this.setSort('temperatureF')}>Temp. (F) {FetchData.getPostfix(sort, 'temperatureF')}</th>
-                        <th role="button" onClick={this.setSort('summary')}>Summary {FetchData.getPostfix(sort, 'summary')}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {FetchData.sort(this.state.forecasts, sort).map(forecast =>
-                        <tr key={forecast.date}>
-                            <td>{forecast.date}</td>
-                            <td>{forecast.temperatureC}</td>
-                            <td>{forecast.temperatureF}</td>
-                            <td>{forecast.summary}</td>
+            <>
+                <table className='table table-striped' aria-labelledby="tabelLabel">
+                    <thead>
+                        <tr>
+                            <th role="button" onClick={this.setSort('date')}>Date {FetchData.getPostfix(sort, 'date')}</th>
+                            <th role="button" onClick={this.setSort('temperatureC')}>Temp. (C) {FetchData.getPostfix(sort, 'temperatureC')}</th>
+                            <th role="button" onClick={this.setSort('temperatureF')}>Temp. (F) {FetchData.getPostfix(sort, 'temperatureF')}</th>
+                            <th role="button" onClick={this.setSort('summary')}>Summary {FetchData.getPostfix(sort, 'summary')}</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {this.state.forecasts.data.map(forecast =>
+                            <tr key={forecast.date}>
+                                <td>{forecast.date}</td>
+                                <td>{forecast.temperatureC}</td>
+                                <td>{forecast.temperatureF}</td>
+                                <td>{forecast.summary}</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+                <nav aria-label="...">
+                    <ul className="pagination">
+                    {
+                        this.state.pagination.currentPage === 1 ?
+                        <li className="page-item disabled">
+                            <span className="page-link">Previous</span>
+                        </li> : 
+                        <li className="page-item">
+                            <a className="page-link" href="javascript:void(0)" tabindex="-1" onClick={this.previousPage()}>Previous</a>
+                        </li>
+                        }
+                    <>
+                        {
+                                [...Array(this.state.forecasts.pages).keys()].map(p => p + 1 !== this.state.pagination.currentPage ?
+                                    <li className="page-item"><a className="page-link" href="javascript:void(0)" onClick={this.setPage(p + 1)}>{p + 1}</a></li> :
+                                    <li class="page-item active">
+                                        <span class="page-link">
+                                            {p + 1}
+                                            <span class="sr-only">(current)</span>
+                                        </span>
+                                    </li>)
+                        }
+                    </>
+                    {
+                        this.state.pagination.currentPage === this.state.forecasts.pages ?
+                        <li className="page-item disabled">
+                            <span className="page-link">Next</span>
+                        </li> :
+                        <li className="page-item">
+                            <a className="page-link" href="javascript:void(0)" onClick={this.nextPage()}>Next</a>
+                        </li>
+                    }
+                  </ul>
+                </nav>
+            </>
         );
     }
 
@@ -94,15 +147,15 @@ export class FetchData extends Component {
     }
 
     async populateWeatherData() {
-        if (!this.state.loading) {
-            this.setState({ loading: true });
-
-            this.setState({ sort: { column: null, order: null } });
-        }
-
         const token = await authService.getAccessToken();
 
-        const response = await fetch('weatherforecast', {
+        const response = await fetch('weatherforecast?' + new URLSearchParams({
+            CurrentPage: this.state.pagination.currentPage,
+            PageSize: this.state.pagination.pageSize,
+            Sort: this.state.sort.column,
+            SortDirection: this.state.sort.order
+        }),
+        {
             headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
         });
 
