@@ -53,9 +53,9 @@ const Table = ({
 
     useEffect(() => {
         populateData();
-    }, []);
+    }, [sort, pagination]);
 
-    const getPostfix = (currentColumn) => {
+    const getPostfix = currentColumn => {
         let { column, order } = sort;
 
         return currentColumn === column ?
@@ -63,38 +63,30 @@ const Table = ({
             : null;
     }
 
-    const executeSort = (currentColumn) => {
+    const executeSort = currentColumn => {
         let { column, order } = sort;
 
         order = (order === 'asc' && column === currentColumn) ? 'desc' : 'asc';
 
         setSort({ column: currentColumn, order: order });
-
-        populateData();
     }
 
     const nextPage = () => {
         let { currentPage, pageSize } = pagination;
 
         setPagination({ currentPage: currentPage + 1, pageSize: pageSize });
-
-        populateData();
     }
 
     const previousPage = () => {
         let { currentPage, pageSize } = pagination;
 
         setPagination({ currentPage: currentPage - 1, pageSize: pageSize });
-
-        populateData();
     }
 
-    const setPage = (page) => {
+    const setPage = page => {
         let { _, pageSize } = pagination;
 
         setPagination({ currentPage: page, pageSize: pageSize });
-
-        populateData();
     }
 
     const getTable = () =>
