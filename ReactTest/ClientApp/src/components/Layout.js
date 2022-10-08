@@ -5,10 +5,12 @@ import AppRoutes from '../AppRoutes';
 import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
-const Layout = ({ module, children }) => {
+const Layout = props => {
     const location = useLocation();
 
     const { pathname } = location;
+
+    const { module, children } = props;
 
     return (
         <div>

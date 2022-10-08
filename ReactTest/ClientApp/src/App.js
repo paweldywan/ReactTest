@@ -6,13 +6,13 @@ import Layout from './components/Layout';
 import './custom.css';
 
 const App = () => (
-    <Layout module='Module1' children={
+    <Layout module='Module1'>
         <Routes>
             {AppRoutes.map((route, index) => {
                 const { element, requireAuth, ...rest } = route;
                 return <Route key={index} {...rest} element={requireAuth ? <AuthorizeRoute {...rest} element={element} /> : element} />;
             })}
-        </Routes>}>
+        </Routes>
     </Layout>
 );
 
