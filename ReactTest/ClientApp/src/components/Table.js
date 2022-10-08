@@ -90,61 +90,70 @@ const Table = ({
         setPagination({ currentPage: page, pageSize: pageSize });
     }
 
-    const getTable = () =>
-    (<>
-        <table className='table table-striped' aria-labelledby="tabelLabel">
-            <thead>
-                <tr>
-                    {columns.map(column =>
-                        <th key={column.key} role="button" onClick={() => executeSort(column.key)}>{column.name} {getPostfix(column.key)}</th>
-                    )}
-                </tr>
-            </thead>
-            <tbody>
-                {data.data.map(data =>
-                    <tr key={data[rowKey]}>
+    const getTable = () => {
+        const firstPage = pagination.currentPage === 1;
+
+        const lastPage = pagination.currentPage === data.pages;
+
+        const pages = [...Array(data.pages).keys()];
+
+        pages.forEach((num, index) => {
+            pages[index] = num + 1;
+        });
+
+        return (<>
+            <table className='table table-striped' aria-labelledby="tabelLabel">
+                <thead>
+                    <tr>
                         {columns.map(column =>
-                            <td key={column.key}>{data[column.key]}</td>
+                            <th key={column.key} role="button" onClick={() => executeSort(column.key)}>{column.name} {getPostfix(column.key)}</th>
                         )}
                     </tr>
-                )}
-            </tbody>
-        </table>
-        <nav aria-label="...">
-            <ul className="pagination">
-                {
-                    pagination.currentPage === 1 ?
-                        <li key="prev" className="page-item disabled">
-                            <span className="page-link">Previous</span>
-                        </li> :
-                        <li key="prev" className="page-item">
-                            <button className="page-link" tabIndex="-1" onClick={previousPage}>Previous</button>
-                        </li>
-                }
-                <>
+                </thead>
+                <tbody>
+                    {data.data.map(data =>
+                        <tr key={data[rowKey]}>
+                            {columns.map(column =>
+                                <td key={column.key}>{data[column.key]}</td>
+                            )}
+                        </tr>
+                    )}
+                </tbody>
+            </table>
+            <nav aria-label="...">
+                <ul className="pagination">
                     {
-                        [...Array(data.pages).keys()].map(p => p + 1 !== pagination.currentPage ?
-                            <li key={p} className="page-item"><button className="page-link" onClick={() => setPage(p + 1)}>{p + 1}</button></li> :
-                            <li key={p} className="page-item active">
-                                <span className="page-link">
-                                    {p + 1}
-                                    <span className="sr-only">(current)</span>
-                                </span>
-                            </li>)
-                    }
-                </>
-                {
-                    pagination.currentPage === data.pages ?
-                        <li key="next" className="page-item disabled">
-                            <span className="page-link">Next</span>
-                        </li> :
-                        <li key="next" className="page-item">
-                            <button className="page-link" onClick={nextPage}>Next</button>
+                        <li key="prev" className={clsx('page-item', firstPage && 'disabled')}>
+                            {firstPage ?
+                                <span className="page-link">Previous</span> :
+                                <button className="page-link" tabIndex="-1" onClick={previousPage}>Previous</button>}
                         </li>
-                }
-            </ul>
-        </nav>
-    </>);
+                    }
+                    {
+                        pages.map(p => {
+                            const currentPage = p === pagination.currentPage;
+
+                            return (<li key={p} className={clsx('page-item', currentPage && 'active')}>
+                                {currentPage ?
+                                    <span className="page-link">
+                                        {p}
+                                        <span className="sr-only">(current)</span>
+                                    </span> :
+                                    <button className="page-link" onClick={() => setPage(p)}>{p}</button>}
+                            </li>);
+                        })
+                    }
+                    {
+                        <li key="next" className={clsx('page-item', lastPage && 'disabled')}>
+                            {lastPage ?
+                                <span className="page-link">Next</span> :
+                                <button className="page-link" onClick={nextPage}>Next</button>}
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </>)
+    };
 
     const contents = loading
         ? <p><em>Loading...</em></p>
