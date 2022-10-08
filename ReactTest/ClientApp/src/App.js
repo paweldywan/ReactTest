@@ -10,13 +10,13 @@ export default class App extends Component {
 
   render() {
     return (
-      <Layout>
-        <Routes>
-          {AppRoutes.map((route, index) => {
-            const { element, requireAuth, ...rest } = route;
-            return <Route key={index} {...rest} element={requireAuth ? <AuthorizeRoute {...rest} element={element} /> : element} />;
-          })}
-        </Routes>
+        <Layout module='Module1' children={
+            <Routes>
+                {AppRoutes.map((route, index) => {
+                    const { element, requireAuth, ...rest } = route;
+                    return <Route key={index} {...rest} element={requireAuth ? <AuthorizeRoute {...rest} element={element} /> : element} />;
+                })}
+            </Routes>}>
       </Layout>
     );
   }

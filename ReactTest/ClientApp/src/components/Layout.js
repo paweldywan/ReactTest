@@ -1,18 +1,22 @@
-import React, { Component } from 'react';
-import { Container } from 'reactstrap';
+import React from 'react';
+import { Container, Breadcrumb, BreadcrumbItem } from 'reactstrap';
 import { NavMenu } from './NavMenu';
+import AppRoutes from '../AppRoutes';
 
-export class Layout extends Component {
-  static displayName = Layout.name;
-
-  render() {
+export const Layout = ({ module, children }) => {
     return (
-      <div>
-        <NavMenu />
-        <Container>
-          {this.props.children}
-        </Container>
-      </div>
+        <div>
+            <NavMenu />
+            <Container>
+                <Breadcrumb>
+                    <BreadcrumbItem key={module}><a href="#">{module}</a></BreadcrumbItem>
+                    {AppRoutes.map(route => {
+                        const { name } = route;
+                        return name ? <BreadcrumbItem key={name}>{name}</BreadcrumbItem> : null
+                    })}
+                </Breadcrumb>
+                {children}
+            </Container>
+        </div>
     );
-  }
-}
+};
