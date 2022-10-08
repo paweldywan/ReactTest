@@ -1,7 +1,8 @@
-﻿import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState, useCallback } from 'react';
 import authService from './api-authorization/AuthorizeService'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import clsx from 'clsx';
 
 const Table = ({
     defaultColumn,
@@ -31,7 +32,7 @@ const Table = ({
         pageSize: defaultPageSize
     });
 
-    const populateData = async () => {
+    const populateData = useCallback(async () => {
         const token = await authService.getAccessToken();
 
         const response = await fetch(`${action}?` + new URLSearchParams({
@@ -49,17 +50,17 @@ const Table = ({
         setData(data);
 
         setLoading(false);
-    };
+    }, [pagination, sort]);
 
     useEffect(() => {
         populateData();
-    }, [sort, pagination]);
+    }, [populateData]);
 
     const getPostfix = currentColumn => {
         let { column, order } = sort;
 
         return currentColumn === column ?
-            (order === 'asc' ? <FontAwesomeIcon icon={faChevronUp} /> : <FontAwesomeIcon icon={faChevronDown} />)
+            <FontAwesomeIcon icon={order === 'asc' ? faChevronUp : faChevronDown} />
             : null;
     }
 
@@ -84,7 +85,7 @@ const Table = ({
     }
 
     const setPage = page => {
-        let { _, pageSize } = pagination;
+        let { pageSize } = pagination;
 
         setPagination({ currentPage: page, pageSize: pageSize });
     }
@@ -117,13 +118,13 @@ const Table = ({
                             <span className="page-link">Previous</span>
                         </li> :
                         <li key="prev" className="page-item">
-                            <a className="page-link" role="button" tabIndex="-1" onClick={previousPage}>Previous</a>
+                            <button className="page-link" tabIndex="-1" onClick={previousPage}>Previous</button>
                         </li>
                 }
                 <>
                     {
                         [...Array(data.pages).keys()].map(p => p + 1 !== pagination.currentPage ?
-                            <li key={p} className="page-item"><a className="page-link" role="button" onClick={() => setPage(p + 1)}>{p + 1}</a></li> :
+                            <li key={p} className="page-item"><button className="page-link" onClick={() => setPage(p + 1)}>{p + 1}</button></li> :
                             <li key={p} className="page-item active">
                                 <span className="page-link">
                                     {p + 1}
@@ -138,7 +139,7 @@ const Table = ({
                             <span className="page-link">Next</span>
                         </li> :
                         <li key="next" className="page-item">
-                            <a role="button" className="page-link" onClick={nextPage}>Next</a>
+                            <button className="page-link" onClick={nextPage}>Next</button>
                         </li>
                 }
             </ul>
