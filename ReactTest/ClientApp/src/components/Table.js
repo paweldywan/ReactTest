@@ -3,7 +3,7 @@ import authService from './api-authorization/AuthorizeService'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import PropTypes from 'prop-types';
-import { Table as DefaultTable, Pagination, PaginationItem, PaginationLink } from 'reactstrap';
+import { Table as DefaultTable, Pagination, PaginationItem, PaginationLink, Button } from 'reactstrap';
 
 const Table = ({
     defaultColumn,
@@ -180,7 +180,7 @@ const Table = ({
         <div>
             <h1 id="tabelLabel" >{label}</h1>
             <p>{description}</p>
-            <button disabled={loading} className="btn btn-primary mb-2" onClick={populateData}>Refresh</button>
+            <Button disabled={loading} color='primary' className="mb-2" onClick={populateData}>Refresh</Button>
             {contents}
         </div>
     );
