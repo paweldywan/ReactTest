@@ -2,8 +2,8 @@
 import authService from './api-authorization/AuthorizeService'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons'
-import clsx from 'clsx';
 import PropTypes from 'prop-types';
+import { Table as DefaultTable, Pagination, PaginationItem, PaginationLink } from 'reactstrap';
 
 const Table = ({
     defaultColumn,
@@ -51,7 +51,7 @@ const Table = ({
         setData(data);
 
         setLoading(false);
-    }, [pagination, sort]);
+    }, [pagination, sort, action]);
 
     useEffect(() => {
         populateData();
@@ -73,28 +73,32 @@ const Table = ({
         setSort({ column: currentColumn, order: order });
     }
 
-    const nextPage = () => {
-        let { currentPage, pageSize } = pagination;
-
-        setPagination({ currentPage: currentPage + 1, pageSize: pageSize });
-    }
-
-    const previousPage = () => {
-        let { currentPage, pageSize } = pagination;
-
-        setPagination({ currentPage: currentPage - 1, pageSize: pageSize });
-    }
-
     const setPage = page => {
         let { pageSize } = pagination;
 
         setPagination({ currentPage: page, pageSize: pageSize });
     }
 
-    const getTable = () => {
-        const firstPage = pagination.currentPage === 1;
+    const setNextPage = () => {
+        let { currentPage } = pagination;
 
-        const lastPage = pagination.currentPage === data.pages;
+        setPage(currentPage + 1);
+    }
+
+    const setPreviousPage = () => {
+        let { currentPage } = pagination;
+
+        setPage(currentPage - 1);
+    }
+
+    const setFirstPage = () => setPage(1);
+
+    const setLastPage = () => setPage(data.pages);
+
+    const getTable = () => {
+        const isFirstPage = pagination.currentPage === 1;
+
+        const isLastPage = pagination.currentPage === data.pages;
 
         const pages = [...Array(data.pages).keys()];
 
@@ -103,7 +107,7 @@ const Table = ({
         });
 
         return (<>
-            <table className='table table-striped' aria-labelledby="tabelLabel">
+            <DefaultTable striped bordered hover responsive>
                 <thead>
                     <tr>
                         {columns.map(column =>
@@ -120,39 +124,51 @@ const Table = ({
                         </tr>
                     )}
                 </tbody>
-            </table>
-            <nav aria-label="...">
-                <ul className="pagination">
-                    {
-                        <li key="prev" className={clsx('page-item', firstPage && 'disabled')}>
-                            {firstPage ?
-                                <span className="page-link">Previous</span> :
-                                <button className="page-link" tabIndex="-1" onClick={previousPage}>Previous</button>}
-                        </li>
-                    }
-                    {
-                        pages.map(p => {
-                            const currentPage = p === pagination.currentPage;
+            </DefaultTable>
+            <Pagination>
+                <PaginationItem disabled={isFirstPage}>
+                    <PaginationLink
+                        first
+                        tag="button"
+                        onClick={setFirstPage}
+                    />
+                </PaginationItem>
+                <PaginationItem disabled={isFirstPage}>
+                    <PaginationLink
+                        previous
+                        tag="button"
+                        onClick={setPreviousPage}
+                    />
+                </PaginationItem>
+                {
+                    pages.map(p => {
+                        const currentPage = p === pagination.currentPage;
 
-                            return (<li key={p} className={clsx('page-item', currentPage && 'active')}>
-                                {currentPage ?
-                                    <span className="page-link">
-                                        {p}
-                                        <span className="sr-only">(current)</span>
-                                    </span> :
-                                    <button className="page-link" onClick={() => setPage(p)}>{p}</button>}
-                            </li>);
-                        })
-                    }
-                    {
-                        <li key="next" className={clsx('page-item', lastPage && 'disabled')}>
-                            {lastPage ?
-                                <span className="page-link">Next</span> :
-                                <button className="page-link" onClick={nextPage}>Next</button>}
-                        </li>
-                    }
-                </ul>
-            </nav>
+                        return (<PaginationItem active={currentPage}>
+                            <PaginationLink
+                                tag="button"
+                                onClick={() => setPage(p)}
+                            >
+                                {p}
+                            </PaginationLink>
+                        </PaginationItem>);
+                    })
+                }
+                <PaginationItem disabled={isLastPage}>
+                    <PaginationLink
+                        next
+                        tag="button"
+                        onClick={setNextPage}
+                    />
+                </PaginationItem>
+                <PaginationItem disabled={isLastPage}>
+                    <PaginationLink
+                        last
+                        tag="button"
+                        onClick={setLastPage}
+                    />
+                </PaginationItem>
+            </Pagination>
         </>)
     };
 
