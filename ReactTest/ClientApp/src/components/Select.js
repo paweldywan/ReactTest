@@ -5,7 +5,8 @@ import PropTypes from 'prop-types';
 const Select = ({
     name,
     label,
-    options
+    options,
+    multiple
 }) => (<FormGroup>
     <Label for={name} >
         {label}
@@ -14,9 +15,10 @@ const Select = ({
         id={name}
         name={name}
         type="select"
+        multiple={multiple}
     >
-        {options.map(option =>
-            <option key={option.value} value={option.value}>
+        {options.map((option, index) =>
+            <option key={index} value={option.value}>
                 {option.text}
             </option>
         )}
@@ -29,7 +31,8 @@ Select.propTypes = {
     options: PropTypes.arrayOf(PropTypes.shape({
         value: PropTypes.string.isRequired,
         text: PropTypes.string.isRequired
-    }))
+    })),
+    multiple: PropTypes.bool.isRequired
 }
 
 export default Select;

@@ -115,12 +115,12 @@ const Table = ({
                 Filters
             </AccordionHeader>
             <AccordionBody accordionId="1">
-                {filters.map(filter => {
+                {filters.map((filter, index) => {
                     const { type, props } = filter;
 
                     switch (type) {
                         case 'select':
-                            return <Select {...props} />
+                            return <Select key={index} {...props} />
 
                         default:
                             return null;
@@ -162,14 +162,14 @@ const Table = ({
             </DefaultTable>
 
             <Pagination>
-                <PaginationItem disabled={isFirstPage}>
+                <PaginationItem key='first' disabled={isFirstPage}>
                     <PaginationLink
                         first
                         tag="button"
                         onClick={setFirstPage}
                     />
                 </PaginationItem>
-                <PaginationItem disabled={isFirstPage}>
+                <PaginationItem key='previous' disabled={isFirstPage}>
                     <PaginationLink
                         previous
                         tag="button"
@@ -180,7 +180,7 @@ const Table = ({
                     pages.map(p => {
                         const currentPage = p === pagination.currentPage;
 
-                        return (<PaginationItem active={currentPage}>
+                        return (<PaginationItem key={p} active={currentPage}>
                             <PaginationLink
                                 tag="button"
                                 onClick={() => setPage(p)}
@@ -190,14 +190,14 @@ const Table = ({
                         </PaginationItem>);
                     })
                 }
-                <PaginationItem disabled={isLastPage}>
+                <PaginationItem key='next' disabled={isLastPage}>
                     <PaginationLink
                         next
                         tag="button"
                         onClick={setNextPage}
                     />
                 </PaginationItem>
-                <PaginationItem disabled={isLastPage}>
+                <PaginationItem key='last' disabled={isLastPage}>
                     <PaginationLink
                         last
                         tag="button"
