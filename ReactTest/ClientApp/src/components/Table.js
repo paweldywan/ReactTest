@@ -3,6 +3,7 @@ import authService from './api-authorization/AuthorizeService'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import clsx from 'clsx';
+import PropTypes from 'prop-types';
 
 const Table = ({
     defaultColumn,
@@ -168,5 +169,22 @@ const Table = ({
         </div>
     );
 };
+
+Table.propTypes = {
+    defaultColumn: PropTypes.string.isRequired,
+    defaultOrder: PropTypes.string.isRequired,
+    defaultPage: PropTypes.number.isRequired,
+    defaultPageSize: PropTypes.number.isRequired,
+    action: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    columns: PropTypes.arrayOf(
+        PropTypes.shape({
+            name: PropTypes.string.isRequired,
+            key: PropTypes.string.isRequired
+        })
+    ),
+    rowKey: PropTypes.string.isRequired
+}
 
 export default Table;

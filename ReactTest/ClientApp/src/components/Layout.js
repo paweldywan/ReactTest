@@ -4,6 +4,7 @@ import NavMenu from './NavMenu';
 import AppRoutes from '../AppRoutes';
 import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 const Layout = props => {
     const location = useLocation();
@@ -31,5 +32,13 @@ const Layout = props => {
         </div>
     );
 };
+
+Layout.propTypes = {
+    module: PropTypes.string.isRequired,
+    children: PropTypes.oneOfType([
+        PropTypes.element,
+        PropTypes.arrayOf(PropTypes.element)
+    ]).isRequired
+}
 
 export default Layout;
