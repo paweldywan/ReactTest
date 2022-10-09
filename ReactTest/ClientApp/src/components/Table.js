@@ -3,7 +3,19 @@ import authService from './api-authorization/AuthorizeService'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import PropTypes from 'prop-types';
-import { Table as DefaultTable, Pagination, PaginationItem, PaginationLink, Button } from 'reactstrap';
+import {
+    Table as DefaultTable,
+    Pagination,
+    PaginationItem,
+    PaginationLink,
+    Button,
+    Spinner,
+    UncontrolledAccordion,
+    AccordionItem,
+    AccordionHeader,
+    AccordionBody
+} from 'reactstrap';
+import Select from './Select';
 
 const Table = ({
     defaultColumn,
@@ -14,7 +26,8 @@ const Table = ({
     rowKey,
     action,
     label,
-    description
+    description,
+    filters
 }) => {
     const [loading, setLoading] = useState(true);
 
@@ -95,6 +108,28 @@ const Table = ({
 
     const setLastPage = () => setPage(data.pages);
 
+    const getFilters = () =>
+    (<UncontrolledAccordion defaultOpen="1" className="mb-2" >
+        <AccordionItem>
+            <AccordionHeader targetId="1">
+                Filters
+            </AccordionHeader>
+            <AccordionBody accordionId="1">
+                {filters.map(filter => {
+                    const { type, props } = filter;
+
+                    switch (type) {
+                        case 'select':
+                            return <Select {...props} />
+
+                        default:
+                            return null;
+                    }
+                })}
+            </AccordionBody>
+        </AccordionItem>
+    </UncontrolledAccordion>);
+
     const getTable = () => {
         const isFirstPage = pagination.currentPage === 1;
 
@@ -125,6 +160,7 @@ const Table = ({
                     )}
                 </tbody>
             </DefaultTable>
+
             <Pagination>
                 <PaginationItem disabled={isFirstPage}>
                     <PaginationLink
@@ -173,13 +209,15 @@ const Table = ({
     };
 
     const contents = loading
-        ? <p><em>Loading...</em></p>
-        : getTable();
+        ? <Spinner /> : getTable();
+
+    const contentsFilters = getFilters();
 
     return (
         <div>
-            <h1 id="tabelLabel" >{label}</h1>
+            <h1 id="tabelLabel">{label}</h1>
             <p>{description}</p>
+            {contentsFilters}
             <Button disabled={loading} color='primary' className="mb-2" onClick={populateData}>Refresh</Button>
             {contents}
         </div>
@@ -200,7 +238,11 @@ Table.propTypes = {
             key: PropTypes.string.isRequired
         })
     ),
-    rowKey: PropTypes.string.isRequired
+    rowKey: PropTypes.string.isRequired,
+    filters: PropTypes.arrayOf(PropTypes.shape({
+        type: PropTypes.oneOf(['select']).isRequired,
+        props: PropTypes.object.isRequired
+    })).isRequired
 }
 
 export default Table;
