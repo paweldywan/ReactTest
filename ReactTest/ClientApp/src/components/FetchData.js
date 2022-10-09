@@ -31,8 +31,9 @@ const FetchData = () => (
         rowKey='date'
         filters={[
             {
-                type: 'select',
+                type: 'input',
                 props: {
+                    type: 'select',
                     name: 'select',
                     label: 'Select',
                     options: [
@@ -52,14 +53,14 @@ const FetchData = () => (
                             value: '4',
                             text: '4'
                         }
-                    ],
-                    multiple: false
+                    ]
                 }
             },
             {
-                type: 'select',
+                type: 'input',
                 props: {
-                    name: 'select',
+                    type: 'select',
+                    name: 'select-multiple',
                     label: 'Select Multiple',
                     options: [
                         {
@@ -80,6 +81,57 @@ const FetchData = () => (
                         }
                     ],
                     multiple: true
+                }
+            },
+            {
+                type: 'input',
+                props: {
+                    type: 'text',
+                    name: 'select-searchable',
+                    label: 'Select Searchable',
+                    options: [
+                        {
+                            value: '1',
+                            text: 'Option11'
+                        },
+                        {
+                            value: '2',
+                            text: 'Option12'
+                        },
+                        {
+                            value: '3',
+                            text: 'Option21'
+                        },
+                        {
+                            value: '4',
+                            text: 'Option22'
+                        }
+                    ],
+                    searchable: true
+                }
+            },
+            {
+                type: 'input',
+                props: {
+                    type: 'text',
+                    name: 'text',
+                    label: 'Text'
+                }
+            },
+            {
+                type: 'input',
+                props: {
+                    type: 'month',
+                    name: 'month',
+                    label: 'Month'
+                }
+            },
+            {
+                type: 'input',
+                props: {
+                    type: 'date',
+                    name: 'date',
+                    label: 'Date'
                 }
             }
         ]}

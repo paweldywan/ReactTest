@@ -13,9 +13,10 @@ import {
     UncontrolledAccordion,
     AccordionItem,
     AccordionHeader,
-    AccordionBody
+    AccordionBody,
+    Form
 } from 'reactstrap';
-import Select from './Select';
+import Input from './Input';
 
 const Table = ({
     defaultColumn,
@@ -115,17 +116,19 @@ const Table = ({
                 Filters
             </AccordionHeader>
             <AccordionBody accordionId="1">
-                {filters.map((filter, index) => {
-                    const { type, props } = filter;
+                <Form>
+                    {filters.map((filter, index) => {
+                        const { type, props } = filter;
 
-                    switch (type) {
-                        case 'select':
-                            return <Select key={index} {...props} />
+                        switch (type) {
+                            case 'input':
+                                return <Input key={index} {...props} />
 
-                        default:
-                            return null;
-                    }
-                })}
+                            default:
+                                return null;
+                        }
+                    })}
+                </Form>
             </AccordionBody>
         </AccordionItem>
     </UncontrolledAccordion>);
@@ -240,7 +243,7 @@ Table.propTypes = {
     ),
     rowKey: PropTypes.string.isRequired,
     filters: PropTypes.arrayOf(PropTypes.shape({
-        type: PropTypes.oneOf(['select']).isRequired,
+        type: PropTypes.oneOf(['input']).isRequired,
         props: PropTypes.object.isRequired
     })).isRequired
 }
