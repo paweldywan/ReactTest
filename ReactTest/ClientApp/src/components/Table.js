@@ -133,7 +133,7 @@ const Table = ({
         </AccordionItem>
     </UncontrolledAccordion>);
 
-    const getTable = () => {
+    const getPagination = () => {
         const isFirstPage = pagination.currentPage === 1;
 
         const isLastPage = pagination.currentPage === data.pages;
@@ -144,26 +144,7 @@ const Table = ({
             pages[index] = num + 1;
         });
 
-        return (<>
-            <DefaultTable striped bordered hover responsive>
-                <thead>
-                    <tr>
-                        {columns.map(column =>
-                            <th key={column.key} role="button" onClick={() => executeSort(column.key)}>{column.name} {getPostfix(column.key)}</th>
-                        )}
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.data.map(data =>
-                        <tr key={data[rowKey]}>
-                            {columns.map(column =>
-                                <td key={column.key}>{data[column.key]}</td>
-                            )}
-                        </tr>
-                    )}
-                </tbody>
-            </DefaultTable>
-
+        return (
             <Pagination>
                 <PaginationItem key='first' disabled={isFirstPage}>
                     <PaginationLink
@@ -208,6 +189,29 @@ const Table = ({
                     />
                 </PaginationItem>
             </Pagination>
+        );
+    };
+
+    const getTable = () => {
+        return (<>
+            <DefaultTable striped bordered hover responsive>
+                <thead>
+                    <tr>
+                        {columns.map(column =>
+                            <th key={column.key} role="button" onClick={() => executeSort(column.key)}>{column.name} {getPostfix(column.key)}</th>
+                        )}
+                    </tr>
+                </thead>
+                <tbody>
+                    {data.data.map(data =>
+                        <tr key={data[rowKey]}>
+                            {columns.map(column =>
+                                <td key={column.key}>{data[column.key]}</td>
+                            )}
+                        </tr>
+                    )}
+                </tbody>
+            </DefaultTable>
         </>)
     };
 
@@ -216,6 +220,8 @@ const Table = ({
 
     const contentsFilters = getFilters();
 
+    const isNotOnePage = data.pages !== 1;
+
     return (
         <div>
             <h1 id="tabelLabel">{label}</h1>
@@ -223,6 +229,7 @@ const Table = ({
             {contentsFilters}
             <Button disabled={loading} color='primary' className="mb-2" onClick={populateData}>Refresh</Button>
             {contents}
+            {isNotOnePage && getPagination()}
         </div>
     );
 };
