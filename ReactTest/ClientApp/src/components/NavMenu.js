@@ -12,7 +12,6 @@ import {
     DropdownItem
 } from 'reactstrap';
 import { Link } from 'react-router-dom';
-import { LoginMenu } from './api-authorization/LoginMenu';
 import './NavMenu.css';
 
 const NavMenu = () => {
@@ -65,8 +64,6 @@ const NavMenu = () => {
                                 </DropdownItem>
                             </DropdownMenu>
                         </UncontrolledDropdown>
-                        <LoginMenu>
-                        </LoginMenu>
                     </ul>
                 </Collapse>
             </Navbar>

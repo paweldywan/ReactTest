@@ -1,62 +1,95 @@
-using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.EntityFrameworkCore;
+using ReactTest;
 using ReactTest.Data;
-using ReactTest.Models;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
-
-string issuerUri = builder.Configuration.GetSection("IdentityServer").GetValue<string>("IssuerUri");
-
-builder.Services.AddIdentityServer(options =>
+internal class Program
 {
-    if (!string.IsNullOrEmpty(issuerUri))
+    private static void Main(string[] args)
     {
-        options.IssuerUri = issuerUri;
+        var builder = WebApplication.CreateBuilder(args);
+
+        var configuration = builder.Configuration;
+
+        var services = builder.Services;
+
+        ConfigureDatabase(configuration, services);
+
+        ConfigureIdentity(services);
+
+        services.AddControllersWithViews();
+
+        services.AddRazorPages();
+
+        builder.Services.AddEndpointsApiExplorer();
+
+        builder.Services.AddSwaggerGen();
+
+        builder.Services.AddCors(opt =>
+        {
+            opt.AddPolicy("CorsPolicy", builder => builder
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .WithOrigins(configuration.GetSection(Constants.CorsOrigins).Get<string[]>())
+                .AllowCredentials());
+        });
+
+        var app = builder.Build();
+
+        // Configure the HTTP request pipeline.
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseMigrationsEndPoint();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI();
+        }
+        else
+        {
+            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+            app.UseHsts();
+        }
+
+        app.UseHttpsRedirection();
+
+        app.UseStaticFiles();
+
+        app.UseRouting();
+
+        app.UseAuthentication();
+
+        app.UseAuthorization();
+
+        app.MapControllerRoute(
+            name: "default",
+            pattern: "{controller}/{action=Index}/{id?}");
+
+        app.MapRazorPages();
+
+        app.MapFallbackToFile("index.html"); ;
+
+        app.Run();
     }
-})
-    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
-builder.Services.AddAuthentication()
-    .AddIdentityServerJwt();
+    private static void ConfigureIdentity(IServiceCollection services)
+    {
+        services.AddAuthentication(NegotiateDefaults.AuthenticationScheme)
+            .AddNegotiate();
 
-builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages();
+        services.AddAuthorization(options =>
+        {
+            options.FallbackPolicy = options.DefaultPolicy;
+        });
+    }
 
-var app = builder.Build();
+    private static void ConfigureDatabase(ConfigurationManager configuration, IServiceCollection services)
+    {
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseMigrationsEndPoint();
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(connectionString));
+
+        services.AddDatabaseDeveloperPageExceptionFilter();
+    }
 }
-else
-{
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseRouting();
-
-app.UseAuthentication();
-app.UseIdentityServer();
-app.UseAuthorization();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller}/{action=Index}/{id?}");
-app.MapRazorPages();
-
-app.MapFallbackToFile("index.html"); ;
-
-app.Run();

@@ -1,5 +1,4 @@
 ﻿import React, { useEffect, useState, useCallback } from 'react';
-import authService from './api-authorization/AuthorizeService'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import PropTypes from 'prop-types';
@@ -48,17 +47,12 @@ const Table = ({
     });
 
     const populateData = useCallback(async () => {
-        const token = await authService.getAccessToken();
-
         const response = await fetch(`${action}?` + new URLSearchParams({
             currentPage: pagination.currentPage,
             pageSize: pagination.pageSize,
             sort: sort.column,
             sortDirection: sort.order
-        }),
-            {
-                headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-            });
+        }));
 
         const data = await response.json();
 
